@@ -10,8 +10,7 @@ mod tests {
 
     #[test]
     fn cast_slice_1() {
-        let mut doc_length: u64 = 0;
-        doc_length = 0x12345678; // 0x12345678
+        let doc_length: u64 = 0x12345678; // 0x12345678
         let binding = [doc_length];
         let ret:&[u8] = cast_slice(&binding);
         println!("ret: {:?} - {:?}", ret, ret.len());
