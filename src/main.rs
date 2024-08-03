@@ -4,9 +4,11 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
+    const VEC_STEP: usize = 1024*1024;
     use std::fs::File;
     use std::io::{BufWriter, Seek, Write};
     use bytemuck::cast_slice;
+    use std::cmp;
 
     #[test]
     fn cast_slice_1() {
@@ -80,12 +82,12 @@ mod tests {
             let num = index%256;
             doc_sizes.push(num as u32);
         }
-        let ret:&[u8] = cast_slice(&doc_sizes);
-        println!("ret: {:?}", ret.len());
-        assert_eq!(ret.len(), 3651930944);
         let file_idx = File::create("./test_slice_5.idx").expect("couldn't open file");
         let mut file_idx_writer = BufWriter::new(file_idx);
-        file_idx_writer.write(ret).expect("Can't write");
+        for i in (0..doc_sizes.len()).step_by(VEC_STEP) {
+            let ret:&[u8] = cast_slice(&doc_sizes[i..cmp::min(i+VEC_STEP, doc_sizes.len())]);
+            file_idx_writer.write(ret).expect("Can't write");
+        }
         let file_size = file_idx_writer.stream_position().unwrap();
         println!("File size: {file_size}");
         assert_eq!(file_size, 3651930944);
